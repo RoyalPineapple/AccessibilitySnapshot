@@ -112,13 +112,15 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        elementVisitor: ((AccessibilityElement, Int, NSObject) -> Void)? = nil
     ) -> [AccessibilityElement] {
         return parseAccessibilityHierarchy(
             in: root,
             rotorResultLimit: rotorResultLimit,
             userInterfaceLayoutDirectionProvider: userInterfaceLayoutDirectionProvider,
-            userInterfaceIdiomProvider: userInterfaceIdiomProvider
+            userInterfaceIdiomProvider: userInterfaceIdiomProvider,
+            elementVisitor: elementVisitor
         ).flattenToElements()
     }
 
@@ -147,7 +149,8 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        elementVisitor: ((AccessibilityElement, Int, NSObject) -> Void)? = nil
     ) -> [AccessibilityHierarchy] {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
@@ -175,8 +178,10 @@ public final class AccessibilityHierarchyParser {
             )
         }
 
-        let elements: [AccessibilityElement] = contextualizedElements.map { element in
-            buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit)
+        let elements: [AccessibilityElement] = contextualizedElements.enumerated().map { (index, element) in
+            let built = buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit)
+            elementVisitor?(built, index, element.object)
+            return built
         }
 
         // Map AccessibilityNode tree to AccessibilityHierarchy tree
