@@ -1,0 +1,28 @@
+name: AccessibilitySnapshot
+options:
+  bundleIdPrefix: com.cashapp.accessibilitysnapshot
+  deploymentTarget:
+    iOS: "13.0"
+targets:
+  AccessibilitySnapshotParser:
+    type: framework
+    platform: iOS
+    sources:
+      - path: Sources/AccessibilitySnapshot/Parser/Swift/Classes
+    settings:
+      base:
+        PRODUCT_MODULE_NAME: AccessibilitySnapshotParser
+        DEFINES_MODULE: YES
+        GENERATE_INFOPLIST_FILE: YES
+  AccessibilitySnapshotParser_ObjC:
+    type: framework
+    platform: iOS
+    sources:
+      - path: Sources/AccessibilitySnapshot/Parser/ObjC
+        headerVisibility: public
+    settings:
+      base:
+        PRODUCT_MODULE_NAME: AccessibilitySnapshotParser_ObjC
+        DEFINES_MODULE: YES
+        GENERATE_INFOPLIST_FILE: YES
+        MODULEMAP_FILE: Derived/AccessibilitySnapshotParser_ObjC.modulemap
