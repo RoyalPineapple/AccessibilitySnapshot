@@ -3,7 +3,7 @@ import UIKit
 /// A type alias for backwards compatibility.
 public typealias AccessibilityMarker = AccessibilityElement
 
-public struct AccessibilityElement: Equatable, Codable {
+public struct AccessibilityElement: Hashable, Codable {
     /// Default number of rotor results to collect in each direction.
     public static let defaultRotorResultLimit: Int = 10
 
@@ -211,5 +211,31 @@ public struct AccessibilityElement: Equatable, Codable {
         self.customRotors = customRotors
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
+    }
+
+    // MARK: - Hashable
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(description)
+        hasher.combine(label)
+        hasher.combine(value)
+        hasher.combine(traits)
+        hasher.combine(identifier)
+        hasher.combine(activationPoint.x)
+        hasher.combine(activationPoint.y)
+        switch shape {
+        case let .frame(rect):
+            hasher.combine(0)
+            hasher.combine(rect.origin.x)
+            hasher.combine(rect.origin.y)
+            hasher.combine(rect.size.width)
+            hasher.combine(rect.size.height)
+        case let .path(path):
+            hasher.combine(1)
+            hasher.combine(path.bounds.origin.x)
+            hasher.combine(path.bounds.origin.y)
+            hasher.combine(path.bounds.size.width)
+            hasher.combine(path.bounds.size.height)
+        }
     }
 }
